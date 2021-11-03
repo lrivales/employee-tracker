@@ -1,17 +1,33 @@
-const mysql = require('mysql2');
+const mysql = require('mysql2/promise');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
 
-const db = mysql.createConnection({
-    host: 'localhost',
-    user: 'root',
-    password: 'l@wr3nc30871',
-    database: 'employee'
-});
+async function runQuery(sql) {
+    const connection = await mysql.createConnection({
+        host: 'localhost',
+        user: 'root',
+        password: 'l@wr3nc30871',
+        database: 'employee'
+    });
 
-runQuery = (sql) => {
-    db.query(`${sql}`, (err, results) => {
-        console.table(results);
+    const results = await connection.execute(`${sql}`);
+    console.table(results[0]);
+
+    inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'askAgain',
+                message: 'Would you like to perform another task?',
+                choices: ['Yes', 'No']
+            }
+        ]).then(answer => {
+            if (answer.askAgain === 'Yes') {
+                init();
+            } else {
+                connection.end();
+                console.log("Thank you for using the Employee DB Manager.");
+            }
     });
 }
 
@@ -27,13 +43,17 @@ init = () => {
         ]).then(answer => {
             switch (answer.action) {
                 case 'View All Departments':
-                    runQuery('SELECT * FROM department');
+                    console.log(answer.action);
+                    runQuery('SELECT * FROM department')
+                    break;
                 case 'View All Roles':
+                    console.log(answer.action);
                     runQuery('SELECT role.title, role.id, department.name, role.salary FROM role INNER JOIN department ON role.department_id=department.id;')
+                    break;
                 default:
                     break;
             }
     });
-}  
+}
 
 init();
