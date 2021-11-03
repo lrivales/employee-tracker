@@ -9,6 +9,6 @@ const db = mysql.createConnection({
     database: 'employee'
   });
 
-db.query(`SELECT * FROM department`, (err, results, fields) => {
-    console.table(results);
-});
+  db.query(`SELECT * FROM department`, (err, results, fields) => {
+      console.table(results);
+  });
