@@ -1,35 +1,39 @@
-const mysql = require('mysql2/promise');
+// const mysql = require('mysql2/promise');
 const inquirer = require('inquirer');
 const cTable = require('console.table');
+const db = require('./db/connection');
+const getDepartments = require('./db/queries');
+const getRoles = require('./db/queries');
+const getEmployees = require('./db/queries')
 
-async function runQuery(sql) {
-    const connection = await mysql.createConnection({
-        host: 'localhost',
-        user: 'root',
-        password: 'l@wr3nc30871',
-        database: 'employee'
-    });
+// async function runQuery(sql) {
+//     const connection = await mysql.createConnection({
+//         host: 'localhost',
+//         user: 'root',
+//         password: 'l@wr3nc30871',
+//         database: 'employee'
+//     });
 
-    const results = await connection.execute(`${sql}`);
-    console.table(results[0]);
-    connection.end();
+//     const results = await connection.execute(`${sql}`);
+//     console.table(results[0]);
+//     connection.end();
 
-    inquirer
-        .prompt([
-            {
-                type: 'list',
-                name: 'askAgain',
-                message: 'Would you like to perform another task?',
-                choices: ['Yes', 'No']
-            }
-        ]).then(answer => {
-            if (answer.askAgain === 'Yes') {
-                init();
-            } else {
-                console.log("Thank you for using the Employee DB Manager.");
-            }
-    });
-}
+//     inquirer
+//         .prompt([
+//             {
+//                 type: 'list',
+//                 name: 'askAgain',
+//                 message: 'Would you like to perform another task?',
+//                 choices: ['Yes', 'No']
+//             }
+//         ]).then(answer => {
+//             if (answer.askAgain === 'Yes') {
+//                 init();
+//             } else {
+//                 console.log("Thank you for using the Employee DB Manager.");
+//             }
+//     });
+// }
 
 init = () => {
     inquirer
@@ -43,26 +47,41 @@ init = () => {
                     'View All Roles',
                     'View All Employees',
                     'Add a Department',
-                    'Add a Role'
+                    'Add a Role',
                 ]
             }
         ]).then(answer => {
             switch (answer.action) {
                 case 'View All Departments':
-                    runQuery(`SELECT * FROM department;`)
+                    console.log(answer.action)
+                    // runQuery(`SELECT * FROM department;`)
+                    getDepartments()
+                        .then(departments => console.table(departments))
+                        .then(() => askAgain())
+                        .catch((err) => console.log(err));
                     break;
                 case 'View All Roles':
-                    runQuery(`SELECT role.title, role.id, department.name, role.salary FROM role
-                        INNER JOIN department ON role.department_id=department.id;`)
+                    console.log(answer.action)
+                    // runQuery(`SELECT role.title, role.id, department.name, role.salary FROM role
+                    //     INNER JOIN department ON role.department_id=department.id;`)
+                    getRoles()
+                        .then(roles => console.table(roles))
+                        .then(() => askAgain())
+                        .catch((err) => console.log(err));
                     break;
                 case 'View All Employees':
-                    runQuery(`
-                        SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name, role.salary, employee.manager_id, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
-                        FROM employee
-                        LEFT JOIN employee AS manager ON employee.manager_id = manager.id
-                        INNER JOIN role ON employee.role_id=role.id
-                        INNER JOIN department ON role.department_id=department.id;
-                    `)
+                    console.log(answer.action)
+                    // runQuery(`
+                    //     SELECT employee.id, employee.first_name, employee.last_name, role.title, department.name, role.salary, employee.manager_id, CONCAT(manager.first_name, ' ', manager.last_name) AS manager
+                    //     FROM employee
+                    //     LEFT JOIN employee AS manager ON employee.manager_id = manager.id
+                    //     INNER JOIN role ON employee.role_id=role.id
+                    //     INNER JOIN department ON role.department_id=department.id;
+                    // `)
+                    getEmployees()
+                        .then(employees => console.table(employees))
+                        .then(() => askAgain())
+                        .catch((err) => console.log(err));
                     break;
                 case 'Add a Department':
                     inquirer
@@ -103,6 +122,25 @@ init = () => {
                         });
                 default:
                     break;
+            }
+    });
+}
+
+function askAgain() {
+    inquirer
+        .prompt([
+            {
+                type: 'list',
+                name: 'askAgain',
+                message: 'Would you like to perform another task?',
+                choices: ['Yes', 'No']
+            }
+        ]).then(answer => {
+            if (answer.askAgain === 'Yes') {
+                init();
+            } else {
+                console.log("Thank you for using the Employee DB Manager.");
+                db.end()
             }
     });
 }
