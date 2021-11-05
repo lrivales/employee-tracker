@@ -8,6 +8,7 @@ const getEmployees = require('./lib/getEmployees');
 const addDepartment = require('./lib/addDepartment');
 const addRole = require('./lib/addRole');
 const addEmployee = require('./lib/addEmployee');
+const updateEmployeeRole = require('./lib/updateEmployeeRole');
 
 let departments = [];
 let employees = [];
@@ -26,7 +27,8 @@ init = () => {
                     'View All Employees',
                     'Add a Department',
                     'Add a Role',
-                    'Add an Employee'
+                    'Add an Employee',
+                    'Update Employee Role'
                 ]
             }
         ]).then(answer => {
@@ -149,7 +151,48 @@ init = () => {
                                         .catch((err) => console.log(err));
                                 })
                         });
+                    break;
 
+                case 'Update Employee Role':
+                    getEmployees()
+                        .then(results => {
+                            for (i = 0; i < results.length; i++) {
+                            employees.push(results[i].first_name + ' ' + results[i].last_name);
+                            }
+                        })
+                        .then(() => {
+                            getRoles()
+                                .then(results => {
+                                    for (i = 0; i < results.length; i++) {
+                                        roles.push(results[i].title);
+                                    }
+                                })
+                                .then(() => {
+                                    inquirer
+                                        .prompt([
+                                            {
+                                                type: 'list',
+                                                name: 'employee',
+                                                message: 'Please select an employee to update.',
+                                                choices: employees
+                                            },
+                                            {
+                                                type: 'list',
+                                                name: 'role',
+                                                message: 'Please select their new role.',
+                                                choices: roles
+                                            }
+                                        ])
+                                        .then(answers => {
+                                            updateEmployeeRole(answers.employee, answers.role)
+                                            .then(() => askAgain())
+                                            .catch((err) => console.log(err))
+                                        });
+
+                                });
+                    });
+                    break;
+                    
                 default:
                     break;
             }
