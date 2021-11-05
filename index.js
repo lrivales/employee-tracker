@@ -10,9 +10,9 @@ const addRole = require('./lib/addRole');
 const addEmployee = require('./lib/addEmployee');
 const updateEmployeeRole = require('./lib/updateEmployeeRole');
 
-let departments = [];
-let employees = [];
-let roles = [];
+// let departments = [];
+// let employees = [];
+// let roles = [];
 
 init = () => {
     inquirer
@@ -31,7 +31,8 @@ init = () => {
                     'Update Employee Role'
                 ]
             }
-        ]).then(answer => {
+        ])
+        .then(answer => {
             switch (answer.action) {
                 case 'View All Departments':
                     getDepartments()
@@ -62,12 +63,15 @@ init = () => {
                                 name: 'department',
                                 message: 'What department would you like to add?'
                             }
-                        ]).then(answer => addDepartment(answer.department))
+                        ])
+                        .then(answer => addDepartment(answer.department))
                         .then(() => askAgain())
                         .catch((err) => console.log(err));
                     break;
 
                 case 'Add a Role':
+                    let departments = [];
+                    
                     getDepartments()
                         .then(results => {
                             for (i = 0; i < results.length; i++) {
@@ -103,17 +107,20 @@ init = () => {
                     break;
                 
                 case 'Add an Employee':
+                    let adderEmployees = [];
+                    let adderRoles = [];
+                    
                     getEmployees()
                         .then(results => {
                             for (i = 0; i < results.length; i++) {
-                            employees.push(results[i].first_name + ' ' + results[i].last_name);
+                            adderEmployees.push(results[i].first_name + ' ' + results[i].last_name);
                             }
                         })
                         .then(() => {
                             getRoles()
                                 .then(results => {
                                     for (i = 0; i < results.length; i++) {
-                                        roles.push(results[i].title);
+                                        adderRoles.push(results[i].title);
                                     }
                                 });
                         })
@@ -134,13 +141,13 @@ init = () => {
                                         type: 'list',
                                         name: 'title',
                                         message: "What is the new employee's title?",
-                                        choices: roles
+                                        choices: adderRoles
                                     },
                                     {
                                         type: 'list',
                                         name: 'manager',
                                         message: "Who is the new employee's manager?",
-                                        choices: employees
+                                        choices: adderEmployees
                                     }
                                 ])
                                 .then(answers => {
@@ -149,22 +156,25 @@ init = () => {
                                             askAgain()
                                         })
                                         .catch((err) => console.log(err));
-                                })
+                                });
                         });
                     break;
 
                 case 'Update Employee Role':
+                    let updateEmployees = [];
+                    let updateRoles = [];
+                    
                     getEmployees()
                         .then(results => {
                             for (i = 0; i < results.length; i++) {
-                            employees.push(results[i].first_name + ' ' + results[i].last_name);
+                                updateEmployees.push(results[i].first_name + ' ' + results[i].last_name);
                             }
                         })
                         .then(() => {
                             getRoles()
                                 .then(results => {
                                     for (i = 0; i < results.length; i++) {
-                                        roles.push(results[i].title);
+                                        updateRoles.push(results[i].title);
                                     }
                                 })
                                 .then(() => {
@@ -174,13 +184,13 @@ init = () => {
                                                 type: 'list',
                                                 name: 'employee',
                                                 message: 'Please select an employee to update.',
-                                                choices: employees
+                                                choices: updateEmployees
                                             },
                                             {
                                                 type: 'list',
                                                 name: 'role',
                                                 message: 'Please select their new role.',
-                                                choices: roles
+                                                choices: updateRoles
                                             }
                                         ])
                                         .then(answers => {
@@ -190,7 +200,7 @@ init = () => {
                                         });
 
                                 });
-                    });
+                        });
                     break;
                     
                 default:
