@@ -10,10 +10,6 @@ const addRole = require('./lib/addRole');
 const addEmployee = require('./lib/addEmployee');
 const updateEmployeeRole = require('./lib/updateEmployeeRole');
 
-// let departments = [];
-// let employees = [];
-// let roles = [];
-
 init = () => {
     inquirer
         .prompt([

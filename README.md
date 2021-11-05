@@ -21,3 +21,4 @@ This application relies on a MySQL back-end.  It also utilizes the following NPM
 3. Follow the prompts.
 
 Watch this video to learn more about the tool:
+https://watch.screencastify.com/v/kBnhnBKsOBPzlCypqwd6
