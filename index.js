@@ -7,8 +7,11 @@ const getRoles = require('./lib/getRoles');
 const getEmployees = require('./lib/getEmployees');
 const addDepartment = require('./lib/addDepartment');
 const addRole = require('./lib/addRole');
+const addEmployee = require('./lib/addEmployee');
 
 let departments = [];
+let employees = [];
+let roles = [];
 
 init = () => {
     inquirer
@@ -98,7 +101,55 @@ init = () => {
                     break;
                 
                 case 'Add an Employee':
-                    // add function here
+                    getEmployees()
+                        .then(results => {
+                            for (i = 0; i < results.length; i++) {
+                            employees.push(results[i].first_name + ' ' + results[i].last_name);
+                            }
+                        })
+                        .then(() => {
+                            getRoles()
+                                .then(results => {
+                                    for (i = 0; i < results.length; i++) {
+                                        roles.push(results[i].title);
+                                    }
+                                });
+                        })
+                        .then(() => {
+                            inquirer
+                                .prompt([
+                                    {
+                                        type: 'input',
+                                        name: 'first_name',
+                                        message: "What is the new employee's first name?"
+                                    },
+                                    {
+                                        type: 'input',
+                                        name: 'last_name',
+                                        message: "What is the new employee's last name?"
+                                    },
+                                    {
+                                        type: 'list',
+                                        name: 'title',
+                                        message: "What is the new employee's title?",
+                                        choices: roles
+                                    },
+                                    {
+                                        type: 'list',
+                                        name: 'manager',
+                                        message: "Who is the new employee's manager?",
+                                        choices: employees
+                                    }
+                                ])
+                                .then(answers => {
+                                    addEmployee(answers.first_name, answers.last_name, answers.title, answers.manager)
+                                        .then(() => {
+                                            askAgain()
+                                        })
+                                        .catch((err) => console.log(err));
+                                })
+                        });
+
                 default:
                     break;
             }
